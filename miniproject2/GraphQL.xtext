@@ -1,0 +1,44 @@
+grammar co7217.miniproject2.GraphQL with org.eclipse.xtext.common.Terminals
+ 
+generate graphQL "http://www.miniproject2.co7217/GraphQL"
+ 
+ GraphQL:
+ 	queries+=Query*
+ 	(elements+=Type)*;
+ 	
+ Query:
+ 	'query' name=ID '(' ')' '{'
+ 		(queryField+=QueryField)+
+ 	'}'
+ ;
+ 
+ QueryField:
+ 	name=ID ('{' (nestedQuery+=QueryField)+ '}')?
+ ;
+
+
+Type:
+        DataType | Entity | Enum;
+
+
+DataType:
+        'scalar' name=ID;
+         
+Enum: 'enum' name=ID '{' 'FRIEND'? 'FOLLOWER'? 'EUROPE'? 'AMERICA'? 'ASIA'?  '}'; //allow enum values ? = is the rule or
+
+Entity:
+	'type' name=ID '{'
+	(features+=Feature)*
+	 '}';
+
+Feature: (many?='many')? name=ID ':' type=[Type] '!' | //mandatory fields
+	(many?='many')? name=ID ':' type=[Type] |	//optional field
+	(many?='many')? name=ID ':' type=[Type] '!' '@isUnique' | //unique field
+	(many?='many')? 'retweeted' ':' name=ID '@defaultValue' '(''value:' '"false"'? '"true"'? ')' | //field with default value	
+	(many?='many')? name=ID ':' '[' type=[Type] ']' '!' | //mandatory string list
+	(many?='many')? name=ID ':' '[' type=[Type] '!' ']' '!' | //non empty mandatory string
+	(many?='many')? name=ID ':' '[' type=[Type] ']' | //optional string list
+	//9 to 10 rules are already made for them
+	(many?='many')? 'location' ':' name=ID '@defaultValue' '(''value:' '"EUROPE"' ')'//to parse ENUM in Q11 Europe
+;
+
